@@ -16,12 +16,15 @@ def __worker(cmd, spawn_number=1):
 
 # just a test for executing commands
 def __sleep(seconds, worker=None):
+    if worker is None or worker == "0":
+        print("")
+
     for i in range(0, int(seconds)):
         if worker is None:
-            print("Sleeping %s ..." % i)
+            print("Sleeping %s | %s" % (str(i).ljust(5), str(sys.argv)))
         else:
-            print("Worker %s: Sleeping %s ..." % (worker, i))
-        time.sleep(randint(1,seconds))
+            print("Worker %s | Sleeping %s | %s" % (worker.ljust(5), str(i).ljust(5), str(sys.argv)))
+        time.sleep(randint(1,int(seconds)))
     print("Done")
 
 # run
