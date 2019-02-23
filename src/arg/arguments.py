@@ -4,6 +4,9 @@ class Arguments:
     def __init__(self, data):
         self.argv = data
 
+    def dump(self):
+        print(self.argv)
+
     def has(self, c):
         '''
         Check if arguments have this parameters
@@ -11,13 +14,16 @@ class Arguments:
         :return: boolean True or False
         '''
         if isinstance(c, str):
-            return True if self.get_property(c) is not None else None
+            return True if self.get_property(c) is not None else False
         elif isinstance(c, set):
             for item in c:
                 if self.get_property(item) is None:
                     return False
             return True
         return False
+
+    def has_value(self, c):
+        return self.has(c) and (self.get_property(c).get_value() != '')
 
     def get_property(self, name, prefix='--'):
         found = False
@@ -26,7 +32,7 @@ class Arguments:
                 return Property(arg, name)
             if ("%s%s"%(prefix,name)) == arg:
                 found = True
-        return None
+        return Property("", name) if found else None
 
     def get_property_arr(self, name, prefix='--'):
         found = []

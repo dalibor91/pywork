@@ -18,6 +18,7 @@ def process_args(argv, path="src.commands"):
         mdl = importlib.import_module('%s.%s' % (str(path), str(import_module)))
     except Exception as e:
         mdl = importlib.import_module('%s.help' % str(path))
+        print("Error: %s" % str(e))
         #if len(argv) > 0:
         #    Colorized.red("Unknown command '%s'" % " ".join(argv))
     mdl.process(arg.Arguments(argv[1:]))
