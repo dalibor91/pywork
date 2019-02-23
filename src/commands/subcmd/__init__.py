@@ -72,6 +72,10 @@ def process(argv):
             mdl = import_module('%s.subcmd' % __name__)
             return getattr(mdl, target)(argv)
         except Exception as e:
-            print("Unable to load '%s' in '%s' -> %s" % (target, __name__, str(e)))
+            print("Unable to load '%s' in '%s' -> %s" % (target, ('%s.subcmd' % __name__), str(e)))
+            raise e
 
     return True
+
+def command(cmd):
+    return __cmd(cmd)

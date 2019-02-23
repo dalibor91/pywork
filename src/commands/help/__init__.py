@@ -7,7 +7,7 @@ any arguments
     command     - Help about cmd 2
     command     - Help about cmd 3
     command     - Help about cmd 4
-    command     - Help about cmd 4
+    daemon      - Run Daemon
     help        - This message
 
 """.strip()

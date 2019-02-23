@@ -7,23 +7,23 @@ class Arguments:
     def dump(self):
         print(self.argv)
 
-    def has(self, c):
+    def has(self, c, prefix='--'):
         '''
         Check if arguments have this parameters
         :param c: list or one paramentr
         :return: boolean True or False
         '''
         if isinstance(c, str):
-            return True if self.get_property(c) is not None else False
+            return True if self.get_property(c, prefix=prefix) is not None else False
         elif isinstance(c, set):
             for item in c:
-                if self.get_property(item) is None:
+                if self.get_property(item, prefix=prefix) is None:
                     return False
             return True
         return False
 
-    def has_value(self, c):
-        return self.has(c) and (self.get_property(c).get_value() != '')
+    def has_value(self, c, prefix="--"):
+        return self.has(c) and (self.get_property(c, prefix=prefix).get_value() != '')
 
     def get_property(self, name, prefix='--'):
         found = False
