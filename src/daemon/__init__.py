@@ -1,31 +1,38 @@
 import time
 import os
+import psutil
 
 from src.context import Context
 
 class Daemon:
     def __init__(self, args):
         self.args = args
-        self.pid_file = "%s/.pid" % Context.get("DATA_DIR")
+        self.pid_file = "%s/daemon.pid" % Context.get("DATA_DIR")
+        self.stop_file = "%s/daemon.stop" % Context.get("DATA_DIR")
 
     @property
     def pid_file_exists(self):
         return os.path.isfile(self.pid_file)
+    
+    @property
+    def stop_file_exists(self):
+        return os.path.isfile(self.stop_file)
 
     @property
     def pid_exists(self):
         if self.pid_file_exists:
-            # todo: more advanced check for windows
-            if os.name == 'nt':
-                return True
-
-            try:
-                os.kill(self.pid, 0)
-            except OSError:
-                return False
-            else:
-                return True
+            _pid = self.get_pid 
+            if _pid:
+                return _pid.status() == psutil.STATUS_RUNNING
         return False
+    
+    @property
+    def get_pid(self):
+        if self.pid_file_exists:
+            _pid = self.pid
+            if _pid > 0:
+                return psutil.Process(self.pid)
+        return None
 
     @property
     def pid(self):
@@ -33,6 +40,9 @@ class Daemon:
             with open(self.pid_file, 'r') as f:
                 return int(f.read())
         return 0
+    
+    def log(self, msg):
+        print("Daemon: %s" % msg)
 
     def create_pid(self):
         if self.pid_exists:
@@ -42,18 +52,43 @@ class Daemon:
             f.write(str(os.getpid()))
 
         return self.pid_exists
-
-    def remove_pid_file(self):
+    
+    def stop(self):
+        if not self.stop_file_exists and self.pid_exists: 
+            with open(self.stop_file, "w") as f:
+                f.write(" ")
+            return True
+        return False
+            
+    def runner(self):
+        self.log("Daemon check")
+    
+    def check_for_stop(self):
+        return os.path.isfile(self.stop_file)
+    
+    def cleanup(self):
+        self.log("Cleanup...")
         if self.pid_exists:
             os.unlink(self.pid_file)
+            
+        if self.stop_file_exists:
+            os.unlink(self.stop_file)
 
     def run(self):
         self.create_pid()
         cnt=0
         while True:
-            print("Daemon check")
-            time.sleep(1)
-            cnt += 1
-            if cnt > 1000:
+            self.runner()
+            
+            if self.stop_file_exists:
+                self.log("Stoping...")
                 break
-        self.remove_pid_file()
+                
+            time.sleep(1)
+            
+            cnt += 1
+            if cnt > 180:
+                break
+        
+        # cleanup files 
+        self.cleanup()

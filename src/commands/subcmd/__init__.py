@@ -2,7 +2,6 @@ import sys
 import os
 
 from importlib import import_module
-from random import randint
 from subprocess import Popen
 
 class __Output:
@@ -57,7 +56,7 @@ def process(argv):
         __out.null_output()
 
     # run just simple command
-    if argv.has('run'):
+    if argv.has_value('run'):
         return True if __cmd("subcmd %s" % argv.get_property('run').get_value()) else False
 
     # run multiple workers
@@ -76,6 +75,9 @@ def process(argv):
             raise e
 
     return True
+
+def output():
+    return __out
 
 def command(cmd):
     return __cmd(cmd)

@@ -24,3 +24,35 @@ in this case workes will be spawned with following command
 ```
 python run.py subcmd --target dosleep --seconds 10 --worker_id [0-9]
 ```
+
+
+## Daemon
+
+Managing daemon
+```
+daemon help 
+```
+
+to print out help message.
+
+```
+daemon status
+```
+to print out status of daemon 
+
+```
+daemon start 
+```
+to start daemon 
+
+```
+daemon stop 
+```
+to stop daemon 
+
+```
+daemon restart 
+```
+to restart daemon
+
+
