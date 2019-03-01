@@ -7,7 +7,10 @@ from src.commands.subcmd import output
 
 
 def process(argv):
-    if argv.has('help', prefix='') or argv.has('help') or argv.has('h'):
+    if argv.size == 0 or \
+        argv.has('help', prefix='') or \
+        argv.has('help') or \
+        argv.has('h', prefix='-'):
         return help()
 
     _daemon = Daemon(argv)
@@ -19,8 +22,9 @@ def process(argv):
             print("NOT RUNNING")
         return True
 
-    output().null_output()
-    
+    if (not argv.has('verbose')) and (not argv.has('v', prefix='-')):
+        output().null_output()
+
     if argv.has('start', prefix=''):
         return command('subcmd --target daemon')
 
@@ -35,15 +39,15 @@ def process(argv):
             while True:
                 if not _daemon.pid_exists:
                     return command('subcmd --target daemon')
-                
+
                 if cnt > 100:
                     print("Unable to restart ")
                     break
-                
+
                 cnt += 1
-                
+
                 sleep(1)
         else:
             command('subcmd --target daemon')
-            
+
     return True

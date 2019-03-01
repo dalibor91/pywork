@@ -7,6 +7,13 @@ class Arguments:
     def dump(self):
         print(self.argv)
 
+    @property
+    def size(self):
+        return len(self.argv)
+
+    def __len__(self):
+        return self.size
+
     def has(self, c, prefix='--'):
         '''
         Check if arguments have this parameters

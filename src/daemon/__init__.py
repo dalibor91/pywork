@@ -13,7 +13,7 @@ class Daemon:
     @property
     def pid_file_exists(self):
         return os.path.isfile(self.pid_file)
-    
+
     @property
     def stop_file_exists(self):
         return os.path.isfile(self.stop_file)
@@ -21,17 +21,20 @@ class Daemon:
     @property
     def pid_exists(self):
         if self.pid_file_exists:
-            _pid = self.get_pid 
+            _pid = self.get_pid
             if _pid:
                 return _pid.status() == psutil.STATUS_RUNNING
         return False
-    
+
     @property
     def get_pid(self):
         if self.pid_file_exists:
             _pid = self.pid
             if _pid > 0:
-                return psutil.Process(self.pid)
+                try:
+                    return psutil.Process(self.pid)
+                except:
+                    self.log("Unable to find pid %s" % str(_pid))
         return None
 
     @property
@@ -40,9 +43,9 @@ class Daemon:
             with open(self.pid_file, 'r') as f:
                 return int(f.read())
         return 0
-    
+
     def log(self, msg):
-        print("Daemon: %s" % msg)
+        print("[ PID: %s ] DAEMON: %s" % (str(os.getpid()), msg))
 
     def create_pid(self):
         if self.pid_exists:
@@ -52,43 +55,39 @@ class Daemon:
             f.write(str(os.getpid()))
 
         return self.pid_exists
-    
+
     def stop(self):
-        if not self.stop_file_exists and self.pid_exists: 
+        if not self.stop_file_exists and self.pid_exists:
             with open(self.stop_file, "w") as f:
                 f.write(" ")
             return True
         return False
-            
+
     def runner(self):
-        self.log("Daemon check")
-    
+        self.log("Runner...")
+
     def check_for_stop(self):
         return os.path.isfile(self.stop_file)
-    
+
     def cleanup(self):
         self.log("Cleanup...")
         if self.pid_exists:
             os.unlink(self.pid_file)
-            
+
         if self.stop_file_exists:
             os.unlink(self.stop_file)
 
     def run(self):
         self.create_pid()
-        cnt=0
+
         while True:
             self.runner()
-            
+
             if self.stop_file_exists:
                 self.log("Stoping...")
                 break
-                
+
             time.sleep(1)
-            
-            cnt += 1
-            if cnt > 180:
-                break
-        
-        # cleanup files 
+
+        # cleanup files
         self.cleanup()
